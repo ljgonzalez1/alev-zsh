@@ -1,5 +1,4 @@
-# Alev (Ale Evolved) — Zsh theme
-# Based on Ale by Alejandro Pimentel: https://github.com/alepimentel/ale-zsh
+# Alev (Ale Evolved) - Zsh theme
 # _ALEV_*: editable settings; _alev_*: public functions; __alev_* / __ALEV_*: internal.
 
 # ============================================================================
@@ -3295,78 +3294,7 @@ __alev_prompt_render
 
 
 # ============================================================================
-# CREDITS AND PROVENANCE
+# CREDITS
 #
-# **Special thanks to [Alejandro Pimentel (@alepimentel)](https://github.com/alepimentel)**, author of [Ale ZSH Theme](https://github.com/alepimentel/ale-zsh), the immediate upstream inspiration for `ale-modded` and Alev (Ale Evolved). The original Ale project is distributed under the MIT License (Copyright (c) 2020 Alejandro Pimentel).
-#
-# The following is the documented ancestry and inspiration chain, not a list of runtime dependencies or a claim that all upstream code is present in this version.
-#
-# ## Direct ancestry
-#
-# - `ale-modded` — the intermediate personal customization on which this implementation was built.
-# - [ale-zsh](https://github.com/alepimentel/ale-zsh) — Alejandro Pimentel. Its [README](https://github.com/alepimentel/ale-zsh/blob/master/README.md) identifies Fino as its base; its [source](https://github.com/alepimentel/ale-zsh/blob/master/ale.zsh-theme) also credits Bira, Robby Russell, Agnoster, Sorin and Steve Losh.
-# - [Fino](https://github.com/ohmyzsh/ohmyzsh/blob/master/themes/fino.zsh-theme) — [Max Masnick](https://maxmasnick.com/2012/09/02/zsh/), who credits Bira, Robby Russell and Steve Losh.
-#
-# ## Further upstream acknowledgments
-#
-# - [Bira](https://github.com/ohmyzsh/ohmyzsh/blob/master/themes/bira.zsh-theme) — Ubiratan Pires Alberton; his [initial commit](https://github.com/ohmyzsh/ohmyzsh/commit/72d7c0363c849fe166577ad91f06ab087feb99b1) explicitly credits macovsky-ruby and funky.
-# - [macovsky-ruby](https://github.com/ohmyzsh/ohmyzsh/blob/master/themes/macovsky-ruby.zsh-theme) — [lunks](https://github.com/ohmyzsh/ohmyzsh/commit/f02c9560b3089fae2639a466ea39263553619df5), a modification of [macovsky](https://github.com/ohmyzsh/ohmyzsh/blob/master/themes/macovsky.zsh-theme), introduced by [macovsky](https://github.com/ohmyzsh/ohmyzsh/commit/bee94dbd6276d53aae56938920466faf15d2495b).
-# - [funky](https://github.com/ohmyzsh/ohmyzsh/blob/master/themes/funky.zsh-theme) — based on Tassilo Horn's [My funky ZSH prompt](https://tsdh.wordpress.com/2007/12/06/my-funky-zsh-prompt/) (2007), which in turn acknowledges [strcat's ZSH prompt](http://www.echox.de/blog/archives/74-ZSH-Prompt.html). That last reference is recorded as cited by Horn; its original contents have not been independently verified.
-# - [robbyrussell](https://github.com/ohmyzsh/ohmyzsh/blob/master/themes/robbyrussell.zsh-theme) — Robby Russell, founder of Oh My Zsh.
-# - [agnoster](https://github.com/agnoster/agnoster-zsh-theme) — @agnoster; inspired by Powerline, as its source explicitly states. [Original gist](https://gist.github.com/agnoster/3712874).
-# - [sorin](https://github.com/ohmyzsh/ohmyzsh/blob/master/themes/sorin.zsh-theme) — Sorin Ionescu; [original commit](https://github.com/ohmyzsh/ohmyzsh/commit/ae8b3b6dbaa444a1b08a63cadabaf3f1781b7c11).
-# - [My Extravagant Zsh Prompt](https://stevelosh.com/blog/2010/02/my-extravagant-zsh-prompt/) — Steve Losh (2010), author of the prose prompt.
-# - [Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh) — Robby Russell and contributors.
-#
-# The original upstream MIT notices are reproduced in full in this file. Acknowledgment does not imply endorsement, affiliation or that the independent blog posts are themselves MIT-licensed. No additional license is asserted here for the new contributions; their copyright holder should choose one before public distribution.
-# ============================================================================
-# UPSTREAM LICENSE NOTICES (verbatim)
-#
-# Ale ZSH Theme: https://github.com/alepimentel/ale-zsh/blob/master/LICENSE
-#
-# MIT License
-#
-# Copyright (c) 2020 Alejandro Pimentel
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-#
-# Oh My Zsh: https://github.com/ohmyzsh/ohmyzsh/blob/master/LICENSE.txt
-#
-# MIT License
-#
-# Copyright (c) 2009-2026 Robby Russell and contributors (https://github.com/ohmyzsh/ohmyzsh/contributors)
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# **Special thanks to [Alejandro Pimentel (@alepimentel)](https://github.com/alepimentel)**, author of [Ale ZSH Theme](https://github.com/alepimentel/ale-zsh).
 # ============================================================================
