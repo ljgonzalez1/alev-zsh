@@ -79,7 +79,7 @@ typeset -gA __alev_color_palette_defaults=(
   PATH                     '#FFFF00 226 76 11 3 | #7A4700 88 32 1 1'
   # Omission marker in a shortened path (bold). Overrides: _ALEV_PATH_ELLIPSIS_COLOR /
   # _ALEV_PATH_ELLIPSIS_ANSI.
-  PATH_ELLIPSIS            '#FFAF00 214 72 11 3 | #8F3F00 88 32 1 1'
+  PATH_ELLIPSIS            '#FF4500 202 64 9 1 | #FF4500 202 64 1 1'
   # Prompt connective text such as at, in, on, using, took and over. Overrides: _ALEV_TEXT_COLOR /
   # _ALEV_TEXT_ANSI.
   TEXT                     '#FFFFFF 231 79 15 7 | #202124 235 80 0 0'
@@ -688,8 +688,8 @@ __ALEV_GIT_SUPERSCRIPT_DIGITS_SYMBOL_ASCII='0123456789'
 __ALEV_GIT_SUBSCRIPT_DIGITS_SYMBOL_NF='₀₁₂₃₄₅₆₇₈₉'
 __ALEV_GIT_SUBSCRIPT_DIGITS_SYMBOL_UNICODE='₀₁₂₃₄₅₆₇₈₉'
 __ALEV_GIT_SUBSCRIPT_DIGITS_SYMBOL_ASCII='0123456789'
-__ALEV_PATH_ELLIPSIS_NF='󰡌'
-__ALEV_PATH_ELLIPSIS_UNICODE='…'
+__ALEV_PATH_ELLIPSIS_NF='···'
+__ALEV_PATH_ELLIPSIS_UNICODE='···'
 __ALEV_PATH_ELLIPSIS_ASCII='...'
 
 # Select the five-column tuple for each role before initializing public color overrides.
@@ -2303,12 +2303,12 @@ __alev_prompt_visible_width() {
   REPLY=${(m)#plain}
 }
 
-# Choose the omission marker, including Nerd Fonts spacing.
+# Choose the omission marker, including ASCII spacing.
 __alev_path_select_omission_marker() {
   case $__alev_icon_mode in
-    nf) REPLY=" $__ALEV_PATH_ELLIPSIS_NF " ;;
+    nf) REPLY=$__ALEV_PATH_ELLIPSIS_NF ;;
     unicode) REPLY=$__ALEV_PATH_ELLIPSIS_UNICODE ;;
-    *) REPLY=$__ALEV_PATH_ELLIPSIS_ASCII ;;
+    *) REPLY=" $__ALEV_PATH_ELLIPSIS_ASCII " ;;
   esac
 }
 
