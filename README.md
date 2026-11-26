@@ -61,8 +61,8 @@ Installation
 
 Notes
 -----
-Left some debugging functions inside (just for fun). Use the `_alev_help` to see everything. 
-
+- Left some debugging functions inside (just for fun). Use the `_alev_help` to see everything. 
+- Most of the things can be toggled on or off via the variables at the top of the `.zsh-theme` file.
 
 
 
