@@ -14,6 +14,9 @@
 # The chosen font must support the requested glyphs; no font probing is performed.
 : ${_ALEV_ICON_MODE:=unicode}
 
+# System uptime, independently of command timing; false hides it and skips the query.
+: ${_ALEV_UPTIME_ENABLED:=false}
+
 # Override zsh-autosuggestions on load, color-depth changes and explicit prompt refresh.
 # False leaves the plugin configuration untouched; use the AUTOSUGGEST palette role below.
 : ${_ALEV_AUTOSUGGEST_OVERRIDE:=true}
@@ -185,6 +188,8 @@ typeset -gA __alev_color_palette_defaults=(
   # Stderr foreground for the explicit wrapper and optional automatic filter. Overrides: _ALEV_STDERR_COLOR
   # / _ALEV_STDERR_ANSI (256) and the corresponding depth-specific overrides.
   STDERR                   '#FF87AF 210 69 9 1 | #A52A58 125 48 1 1'
+  # System uptime digits (not bold). Overrides: _ALEV_UPTIME_COLOR / _ALEV_UPTIME_ANSI.
+  UPTIME                   '#49B85B 71 24 2 2 | #176B35 22 2 2 2'
   # Default duration color below the first threshold or with dynamic colors disabled. Overrides:
   # _ALEV_TIME_IDLE_COLOR / _ALEV_TIME_IDLE_ANSI.
   TIME_IDLE                '#A8A8A8 248 84 7 7 | #5D5D5D 59 81 0 0'
@@ -672,6 +677,9 @@ __ALEV_TREE_VERTICAL_SYMBOL_ASCII='|'
 __ALEV_SEPARATOR_SYMBOL_NF='·'
 __ALEV_SEPARATOR_SYMBOL_UNICODE='·'
 __ALEV_SEPARATOR_SYMBOL_ASCII='|'
+__ALEV_UPTIME_SYMBOL_NF='󱫡'
+__ALEV_UPTIME_SYMBOL_UNICODE='up'
+__ALEV_UPTIME_SYMBOL_ASCII='up'
 __ALEV_CONTINUATION_SYMBOL_NF='  ├─'
 __ALEV_CONTINUATION_SYMBOL_UNICODE='  ├─'
 __ALEV_CONTINUATION_SYMBOL_ASCII='  |--'
@@ -788,7 +796,7 @@ typeset -ga __alev_icon_category_ids=(
   GIT_STAGED GIT_CONFLICT GIT_MODIFIED GIT_DELETED GIT_UNTRACKED GIT_AHEAD GIT_BEHIND
   PYTHON NODEJS JAVA KOTLIN GO RUST DOTNET RUBY PHP LUA SWIFT DART R
   TREE_TOP TREE_MIDDLE TREE_CORNER TREE_DASH TREE_ROOT_DASH TREE_VERTICAL
-  SEPARATOR CONTINUATION EXIT_OPEN EXIT_CLOSE GIT_SUPERSCRIPT_DIGITS GIT_SUBSCRIPT_DIGITS
+  SEPARATOR UPTIME CONTINUATION EXIT_OPEN EXIT_CLOSE GIT_SUPERSCRIPT_DIGITS GIT_SUBSCRIPT_DIGITS
 )
 
 # Select a private glyph for the requested or active icon mode.
@@ -1321,6 +1329,58 @@ __alev_command_render_duration() {
     fi
   fi
   __alev_color_render_role "$id" "$value"
+}
+
+# Read system uptime without spawning a process on Linux. On BSD/macOS use boot time.
+# Return failure when no supported source is available; never display a fabricated zero.
+__alev_uptime_seconds() {
+  emulate -L zsh
+  local value rest boot stamp
+  REPLY=''
+  if [[ -r /proc/uptime ]]; then
+    IFS=' ' read -r value rest < /proc/uptime || return 1
+    value=${value%%.*}
+    [[ $value == <-> ]] || return 1
+    REPLY=$value
+  elif [[ $OSTYPE == (darwin*|*bsd*|dragonfly*) ]] && (( $+commands[sysctl] )); then
+    boot=$(LC_ALL=C command sysctl -n kern.boottime 2>/dev/null) || return 1
+    # BSD may return a bare epoch value or a structure containing sec = ... .
+    if [[ $boot == <-> ]]; then
+      stamp=$boot
+    elif [[ $boot == *'sec = '* ]]; then
+      stamp=${boot#*sec = }
+      stamp=${stamp%%[^0-9]*}
+    else
+      return 1
+    fi
+    [[ $stamp == <-> && ${EPOCHSECONDS:-0} == <-> ]] || return 1
+    (( EPOCHSECONDS >= 10#$stamp && 10#$stamp > 0 )) || return 1
+    REPLY=$(( EPOCHSECONDS - 10#$stamp ))
+  else
+    return 1
+  fi
+  return 0
+}
+
+# SS, MM:SS, HH:MM:SS or D:HH:MM:SS (days are never zero-padded).
+__alev_uptime_format() {
+  emulate -L zsh
+  [[ $1 == <-> ]] || { REPLY=''; return 1; }
+  local -i secs=$(( 10#$1 )) days hours mins
+  days=$(( secs / 86400 ))
+  hours=$(( secs / 3600 % 24 ))
+  mins=$(( secs / 60 % 60 ))
+  secs=$(( secs % 60 ))
+  if (( days > 0 )); then
+    printf -v REPLY '%d:%02d:%02d:%02d' "$days" "$hours" "$mins" "$secs"
+  elif (( hours > 0 )); then
+    printf -v REPLY '%02d:%02d:%02d' "$hours" "$mins" "$secs"
+  elif (( mins > 0 )); then
+    printf -v REPLY '%02d:%02d' "$mins" "$secs"
+  else
+    printf -v REPLY '%02d' "$secs"
+  fi
+  return 0
 }
 
 # ---------------- Git ----------------
@@ -2556,7 +2616,7 @@ __alev_prompt_render() {
     fi
   fi
   # Assemble the first line from independent segments before printing.
-  # Time is expendable; the user, host, Git status and root SSH notice are not.
+  # Timing segments are expendable; the user, host, Git status and root SSH notice are not.
   local first_prefix="$tree" identity=''
   if [[ $_ALEV_SHOW_USER == true ]]; then
     identity=$user_seg
@@ -2571,7 +2631,7 @@ __alev_prompt_render() {
     __alev_color_render_role TEXT " in "; identity+=$REPLY
   fi
   first_prefix+=$identity
-  local git_seg='' time_seg='' ssh_seg=''
+  local git_seg='' uptime_seg='' time_seg='' ssh_seg='' uptime_value
   local -i columns=0 budget=0 path_budget
   __alev_terminal_columns
   columns=$REPLY
@@ -2580,6 +2640,20 @@ __alev_prompt_render() {
   if [[ $_ALEV_GIT_ENABLED == true && $_ALEV_GIT_SHOW_STATUS == true && $__alev_git_status_record == 1* ]]; then
     __alev_git_render_status "$__alev_git_status_record"
     git_seg=${REPLY#1}
+  fi
+  if [[ $_ALEV_UPTIME_ENABLED == true ]]; then
+    if (( $# >= 8 )); then
+      uptime_value=$8
+    elif __alev_uptime_seconds; then
+      uptime_value=$REPLY
+    fi
+    if __alev_uptime_format "$uptime_value"; then
+      __alev_color_render_role UPTIME "$REPLY" false
+      label=$REPLY
+      __alev_icon_get_symbol UPTIME
+      __alev_color_render_role TEXT " $REPLY" false
+      uptime_seg="${sep}${label}${REPLY}"
+    fi
   fi
   if [[ $_ALEV_COMMAND_TIME_ENABLED == true && $_ALEV_COMMAND_TIME_COUNT == true ]]; then
     __alev_command_render_duration
@@ -2600,12 +2674,16 @@ __alev_prompt_render() {
   fi
   # Clear any shortened-path metadata from a previous render.
   __alev_path_visible_prefix=$path_text; __alev_path_omission_marker=''; __alev_path_visible_suffix=''
-  first="${first_prefix}${path_seg}${git_seg}${time_seg}${ssh_seg}"
+  first="${first_prefix}${path_seg}${git_seg}${uptime_seg}${time_seg}${ssh_seg}"
   if (( budget > 0 )); then
     __alev_prompt_visible_width "$first"
     if (( REPLY > budget )); then
-      first="${first_prefix}${path_seg}${git_seg}${ssh_seg}"
+      first="${first_prefix}${path_seg}${git_seg}${uptime_seg}${ssh_seg}"
       __alev_prompt_visible_width "$first"
+      if (( REPLY > budget )); then
+        first="${first_prefix}${path_seg}${git_seg}${ssh_seg}"
+        __alev_prompt_visible_width "$first"
+      fi
       if [[ $_ALEV_SHOW_PATH == true && $_ALEV_PATH_SHORTEN_ENABLED == true ]] && (( REPLY > budget )); then
         __alev_prompt_visible_width "${first_prefix}${git_seg}${ssh_seg}"
         path_budget=$((budget-REPLY))
@@ -3041,13 +3119,14 @@ __alev_preview_case() (
   unsetopt prompt_subst prompt_bang
   local title_text=$1 preview_root=$2 preview_ssh=$3 preview_git=$4 preview_lang=$5
   local preview_venv=${6-} preview_conda=${7-} preview_nested=${8:-false} preview_path=${9-}
+  local preview_uptime=${11:-3660}
   local preview_duration=${10:-0.01} preview_user=${USERNAME:-${USER:-user}} setting runtime_id
   # Enable every display feature in the child shell so disabled features can be inspected.
   for setting in _ALEV_SHOW_USER _ALEV_SHOW_HOST _ALEV_SHOW_PATH _ALEV_SSH_ENABLED \
     _ALEV_GIT_ENABLED _ALEV_GIT_SHOW_STATUS _ALEV_GIT_SHOW_INPUT_ICON _ALEV_GIT_ROOT_ICON_ENABLED \
     _ALEV_GIT_SHOW_COUNTERS _ALEV_GIT_SHOW_AHEAD _ALEV_GIT_SHOW_BEHIND _ALEV_GIT_SHOW_STAGED \
     _ALEV_GIT_SHOW_CONFLICTS _ALEV_GIT_SHOW_MODIFIED _ALEV_GIT_SHOW_DELETED _ALEV_GIT_SHOW_UNTRACKED \
-    _ALEV_COMMAND_TIME_COUNT _ALEV_COMMAND_TIME_ENABLED _ALEV_LANGUAGES_ENABLED \
+    _ALEV_UPTIME_ENABLED _ALEV_COMMAND_TIME_COUNT _ALEV_COMMAND_TIME_ENABLED _ALEV_LANGUAGES_ENABLED \
     _ALEV_PYTHON_ENABLED _ALEV_CONDA_ENABLED _ALEV_CONDA_SHOW_BASE _ALEV_PATH_SHORTEN_ENABLED; do
     typeset "$setting=true"
   done
@@ -3070,7 +3149,7 @@ __alev_preview_case() (
   __alev_runtime_version_records=$preview_lang
   __alev_command_elapsed_seconds=$preview_duration
   __alev_prompt_render "$preview_path" "$preview_user" "$preview_root" "$preview_ssh" \
-    "$preview_venv" "$preview_conda" "$preview_nested"
+    "$preview_venv" "$preview_conda" "$preview_nested" "$preview_uptime"
   __alev_diagnostic_print_colored_text SSH "$title_text (simulated)"
   print -r -- ''
   print -P -r -- "$__alev_prompt_rendered_text"
@@ -3164,6 +3243,14 @@ _alev_show_time() {
   done
 }
 
+# Preview uptime format boundaries using simulated system uptime.
+_alev_show_uptime() {
+  local seconds
+  for seconds in 2 12 60 3660 86400 90061; do
+    __alev_preview_case "Uptime: ${seconds}s" false false clean '' '' '' false '~' 0.01 "$seconds"
+  done
+}
+
 # Preview error notices and the continuation prompt without failing or signaling a command.
 _alev_show_exit() (
   emulate -L zsh
@@ -3197,6 +3284,7 @@ _alev_show_all() {
   _alev_show_root
   _alev_show_ssh
   _alev_show_time
+  _alev_show_uptime
   _alev_show_exit
   return 0
 }
@@ -3215,6 +3303,7 @@ _alev_help() {
   builtin printf '  %-39s %s\n' '_alev_show_ssh' 'Preview remote sessions with and without Git.'
   builtin printf '  %-39s %s\n' '_alev_show_path' 'Preview current, home and shortened paths.'
   builtin printf '  %-39s %s\n' '_alev_show_time' 'Preview elapsed-time formats and colors.'
+  builtin printf '  %-39s %s\n' '_alev_show_uptime' 'Preview system uptime formats and colors.'
   builtin printf '  %-39s %s\n' '_alev_show_exit' 'Preview exit codes, signals and continuation prompts.'
   builtin print -r -- '  Languages: python, conda, nested, node, java, kotlin, go, rust, dotnet,'
   builtin print -r -- '             ruby, php, lua, luajit, swift, dart, flutter, r.'
