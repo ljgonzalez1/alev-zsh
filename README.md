@@ -1,5 +1,4 @@
-Ale-Evolved (Alev) ZSH Theme
-=============
+# Ale-Evolved (Alev) ZSH Theme
 
 This theme is based in the [alepimentel's ale](https://github.com/alepimentel/ale-zsh) theme.
 
@@ -7,7 +6,7 @@ This theme is based in the [alepimentel's ale](https://github.com/alepimentel/al
 
 ---
 
-~5 years of tweaking the original theme as I pleased + 3 hours fixing the spaghetti mess I left with ChatGPT.
+~5 years of tweaking the original theme as I pleased + 3 hours fixing the half dead spaghetti mess I left with ChatGPT.
 
 ---
 
@@ -27,17 +26,25 @@ What does it show?
 Features
 --------
 
-- Automatic color depth detection and fallback:
-  - True Color.
-  - ANSI 256 colors.
-  - ANSI 88 colors.
-  - ANSI 16 colors.
-  - ANSI 8 colors.
+- Automatic color depth detection and fallback
 - Automatic ASCII fallback on basic terminals.
 - Intelligent path shortening.
 - Automatic wrapping of language and environment indicators.
 - Colored stderr output.
 - Built-in visual previews and diagnostic functions.
+
+### Nerd Font version
+
+![Nerd font version_image](assets/nerd-font.png)
+
+### Unicode (base) version
+
+![Unicode_version image](assets/unicode.png)
+
+### ASCII fallback version
+
+![ASCII_version image](assets/ascii.png)
+
 
 Compatibility
 -------------
